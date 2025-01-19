@@ -1,25 +1,46 @@
 <script setup>
 import { useStore } from '../store';
+import { useRouter } from 'vue-router';
 import Footer from "../components/Footer.vue";
 import Header from "../components/Header.vue";
 
 const store = useStore();
+const router = useRouter();
 
 function goBackToMovies() {
   router.push("/movies");
 }
+
+const checkout = () => {
+  if (store.cart.size > 0) {
+    store.cart.clear();
+    localStorage.removeItem('cart');
+    store.checkoutMessage = 'Thank you for your purchase!';
+    setTimeout(() => {
+      store.checkoutMessage = '';
+    }, 3000);
+  } else {
+    store.checkoutMessage = 'No items to checkout';
+  }
+};
 </script>
 
 <template>
   <Header />
   <div class="cart">
+    <button class="button back" @click="goBackToMovies">Back to Movie List</button>
+    <button class="checkout-button" @click="checkout">Checkout</button>
+    <div v-if="store.checkoutMessage" class="thank-you-message">
+  {{ store.checkoutMessage }}
+    </div>
+
     <h1>Shopping Cart</h1>
       <div class="item" v-for="([key, value]) in store.cart">
         <img :src="`https://image.tmdb.org/t/p/w500${value.url}`" />
         <h1>{{ value.title }}</h1>
         <button @click="store.removeFromCart(key)">Remove</button>
       </div>
-  </div>
+    </div>
   <Footer />
 </template>
 

@@ -20,6 +20,7 @@ if (!movieId) {
     <Details :id="movieId" />
     <button @click="router.push('/movies')">Back to Movies</button>
   </div>
+  <button class="button back" @click="goBackToMovies">Back to Movie List</button>
   <Footer/>
 </template>
 

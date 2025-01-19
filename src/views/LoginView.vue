@@ -1,16 +1,34 @@
 <script setup>
-import Header from '../components/Header.vue';
+import Footer from "../components/Footer.vue";
 import { RouterLink, useRouter } from 'vue-router';
 import { ref } from 'vue';
+import { useStore } from "../store"
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth } from "../firebase"
 
+const store = useStore();
 const router = useRouter();
+const email = ref('');
 const password = ref('');
 
-const handleLogin = () => {
-  if (password.value === "movielover") {
+const loginByEmail = async () => {
+  try {
+    const user = (await signInWithEmailAndPassword(auth, email.value, password.value)).user;
+    store.user = user;
     router.push("/movies");
-  } else {
-    alert("Invalid Password");
+  } catch (error) {
+    console.log(error);
+    alert("There was an error signing in with email!");
+  }
+};
+
+const loginByGoogle = async () => {
+  try {
+    const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
+    store.user = user;
+    router.push("/movies");
+  } catch (error) {
+    alert("There was an error signing in with Google!");
   }
 };
 </script>
@@ -21,13 +39,15 @@ const handleLogin = () => {
       <div class="navbar">
         <h1>NotFlix</h1>
         <RouterLink to="/register" class="button register">Register</RouterLink>
+        <button @click="goToHome" class="button back">Back to Home</button>
       </div>
       <div class="form-container">
         <h2>Login to Your Account</h2>
-        <form @submit.prevent="handleLogin">
+        <form @submit.prevent="loginByEmail()">
           <input type="email" placeholder="Email" class="input-field" required />
           <input v-model="password" type="password" placeholder="Password" class="input-field" required />
           <button type="submit" class="button login">Login</button>
+          <button @click="loginByGoogle()" class="button register-google">Register by Google</button>
         </form>
       </div>
     </div>

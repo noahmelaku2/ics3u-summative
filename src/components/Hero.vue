@@ -53,7 +53,7 @@ onMounted(() => {
   padding: 10px;
   background-color: black;
   position: fixed; /* Fix buttons near the header */
-  top: 70px; /* Position just below the header */
+  top: 100px; /* Position just below the header */
   width: 100%;
   z-index: 999;
 }

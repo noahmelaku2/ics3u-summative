@@ -1,68 +1,89 @@
 <script setup>
-import { useRegistrationStore } from '../store';
-import { computed } from 'vue';
 import Header from '../components/Header.vue'
 import Footer from '../components/Footer.vue'
+import { useRouter } from "vue-router";
+import { useStore } from '../store';
+import { updatePassword, updateProfile } from "firebase/auth";
+import { auth } from "../firebase";
+import { ref } from 'vue';
 
-const userStore = useRegistrationStore();
+const store = useStore();
+const router = useRouter();
+const name = ref(store.user?.displayName?.split(" ")[0] || '');
+const lastName = ref(store.user?.displayName?.split(" ")[1] || '');
+const email = ref(store.user?.email || '');
+const password = ref('');
 
-const firstName = computed({
-  get: () => userStore.firstName,
-  set: (value) => {
-    userStore.firstName = value;
-  },
-});
-const lastName = computed({
-  get: () => userStore.lastName,
-  set: (value) => {
-    userStore.lastName = value;
-  },
-});
-const email = computed({
-  get: () => userStore.email,
-  set: (value) => {
-    userStore.email = value;
-  },
-});
+const changeName = async () => {
+  try {
+    const user = auth.currentUser;
+    if (user) {
+      await updateProfile(user, { displayName: `${name.value} ${lastName.value}` });
 
-const updateProfileHandler = (event) => {
-  event.preventDefault();
-  userStore.setRegistrationData({
-    firstName: firstName.value,
-    lastName: lastName.value,
-    email: email.value,
-  });
+      store.user = user;
+      alert("Name updated successfully!");
+    }
+  } catch (error) {
+    console.error("Error occurred during name change:", error);
+    alert("There was an error updating the name. Please try again.");
+  }
+};
 
-  alert('Profile updated successfully!');
+const changePassword = async () => {
+  try {
+    const user = auth.currentUser;
+    await updatePassword(user, password.value);
+    alert("Password updated successfully!");
+    password.value = '';
+  } catch (error) {
+    alert("There was an error updating the password. Please try again.");
+  }
+};
+
+function goBackToMovies() {
+  router.push("/movies");
 }
 </script>
 
 <template>
-  <div class="Notflix-theme">
-    <div class="settings-view">
-      <h1>User Settings</h1>
-      <form @submit.prevent="updateProfileHandler">
-        <div class="form-group">
-          <label for="firstName">First Name:</label>
-          <input type="text" id="firstName" class="input-field" v-model="firstName" /><br /><br />
-        </div>
-        <div class="form-group">
-          <label for="lastName">Last Name:</label>
-          <input type="text" id="lastName" class="input-field" v-model="lastName" /><br /><br />
-        </div>
-        <div class="form-group">
-          <label for="email">Email:</label>
-          <input type="email" id="email" class="input-field" v-model="email" readonly/><br /><br />
-        </div>
-        <button type="submit" class="button">Save Changes</button>
-      </form>
+  <Header />
+  <div class="form-container">
+    <button class="button back" @click="goBackToMovies">Back to Movie List</button>
+    <h1>User Profile</h1>
+    <form @submit.prevent="changeName" class="form">
+      <div class="input-container">
+        <p>{{ `First Name: ${name}` }}</p>
+        <input v-model="name" type="text" id="name" class="input-field" />
+        <button type="submit" class="changeName">Change</button>
+      </div>
+    </form>
+    <form @submit.prevent="changeName" class="form">
+      <div class="input-container">
+        <p>{{ `Last Name: ${lastName}` }}</p>
+        <input v-model="lastName" type="text" id="lastName" class="input-field" />
+        <button type="submit" class="changeName">Change</button>
+      </div>
+    </form>
+    <div class="email">
+      <div class="input-container">
+        <p>{{ `Email:` }}</p>
+        <input v-model="email" type="email" id="email" class="input-field" readonly />
+      </div>
     </div>
+    <form @submit.prevent="changePassword" class="form">
+      <div class="input-container">
+        <p>New Password</p>
+        <input v-model="password" type="password" id="password" class="input-field" required />
+        <button type="submit" class="changeName">Change Password</button>
+      </div>
+    </form>
   </div>
+  <Footer />
 </template>
 
 <style scoped>
 .Notflix-theme {
-  background-color: #1e1e1e; /* Dark background for a cinematic feel */
+  background-color: #092ae5; /* Dark background for a cinematic feel */
   color: #fff; /* White text for contrast */
   font-family: Arial, sans-serif;
   min-height: 100vh;
@@ -73,7 +94,7 @@ const updateProfileHandler = (event) => {
 }
 
 .settings-view {
-  background-color: #2c2c2c; /* Slightly lighter background for the form container */
+  background-color: #092ae5; /* Slightly lighter background for the form container */
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   padding: 20px 30px;
@@ -100,16 +121,16 @@ label {
 .input-field {
   width: 100%;
   padding: 10px;
-  border: 1px solid #444;
+  border: 1px solid #092ae5;
   border-radius: 5px;
-  background-color: #1e1e1e;
+  background-color: #092ae5;
   color: #fff;
   font-size: 16px;
 }
 
 .input-field:focus {
   outline: none;
-  border-color: #ff4500; /* Highlight color for focus */
+  border-color: #092ae5; /* Highlight color for focus */
   box-shadow: 0 0 5px rgba(255, 69, 0, 0.7);
 }
 
@@ -126,21 +147,21 @@ button {
 }
 
 .button.save {
-  background-color: #ff4500;
+  background-color: #092ae5;
   color: #fff;
 }
 
 .button.save:hover {
-  background-color: #e63e00;
+  background-color: #092ae5;
 }
 
 .button.back {
-  background-color: #555;
+  background-color: #092ae5;
   color: #fff;
 }
 
 .button.back:hover {
-  background-color: #444;
+  background-color: #092ae5;
 }
 
 @media (max-width: 768px) {

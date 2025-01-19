@@ -3,7 +3,7 @@
 
 <template>
     <div class="footer">
-        <p>© NotFlix 2024, All Rights Reserved.</p>
+        <p>© NotFlix 2025, All Rights Reserved.</p>
     </div>
 </template>
 

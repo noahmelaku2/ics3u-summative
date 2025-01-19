@@ -1,42 +1,103 @@
 <script setup>
 import { useRegistrationStore } from '../store';
 import { useRouter } from 'vue-router';
+import { ref } from 'vue';
+import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth } from "../firebase";
 import Header from '../components/Header.vue'
 import Footer from '../components/Footer.vue'
 
+const firstName = ref('');
+const lastName = ref('');
+const email = ref('');
+const password = ref('');
+const repassword = ref('');
 const store = useRegistrationStore();
 const router = useRouter();
 
-const validateForm = (event) => {
-  if (store.password !== store.rePassword) {
-    event.preventDefault(); 
-    alert('The passwords do not match. Please check and try again.');
-  } else {
-    store.setRegistrationData({
-      firstName: store.firstName,
-      lastName: store.lastName,
-      email: store.email,
-      password: store.password,
-    });
-
-    router.push('/movies')
+function validatePassword(password) {
+  if (password.length < 6) {
+    alert("Password should be at least 6 characters long.");
+    return false;
   }
-};
+  return true;
+}                     
+
+function handleSubmit() {
+  if (password.value === password2.value) {
+    if (!validatePassword(password.value)) {
+      return;
+    }
+    store.firstName = firstName.value;
+    store.lastName = lastName.value;
+    store.email = email.value;
+    store.password = password.value;
+    router.push('/movies');
+  } else {
+    window.alert('Passwords do not match; Please re-enter');
+  }
+}
+
+function goToHome() {
+  router.push('/');
+}
+
+async function registerByEmail() {
+  try {
+    if (!validatePassword(password.value)) {
+      return;
+    }
+
+    const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
+    const user = userCredential.user;
+
+    await updateProfile(user, { displayName: `${firstName.value} ${lastName.value}` });
+    store.user = user;
+
+    console.log("User created:", user);
+
+    router.push("/movies");
+  } catch (error) {
+    console.error("Error creating user:", error);
+    alert("There was an error creating a user with email: " + error.message);
+  }
+}
+
+async function registerByGoogle() {
+  try {
+    const userCredential = await signInWithPopup(auth, new GoogleAuthProvider());
+    const user = userCredential.user;
+
+    store.user = user;
+
+    console.log("User created via Google:", user);
+
+    router.push("/movies");
+  } catch (error) {
+    console.error("Error creating user with Google:", error);
+    alert("There was an error creating a user with Google: " + error.message);
+  }
+}
 </script>
 
 <template>
   <Header />
   <div class="form-container">
     <h2>Create an Account</h2>
-      <form @submit="validateForm">
-        <input type="text" placeholder="First Name" class="input-field" v-model="store.firstName" required />
-        <input type="text" placeholder="Last Name" class="input-field" v-model="store.lastName" required />
-        <input type="email" placeholder="Email" class="input-field" v-model="store.email" required />
-        <input type="password" placeholder="Password" class="input-field" v-model="store.password" required />
-        <input type="password" placeholder="Re-Enter Password" class="input-field" v-model="store.rePassword" required />
+    <button class="button back" @click="goToHome">Back to Home</button>
+    <form @submit.prevent="registerByEmail">
+        <input v-model="firstName" type="text" placeholder="First Name" class="input-field" required>
+          <input v-model="lastName" type="text" placeholder="Last name" class="input-field" required>
+          <input v-model="email" type="email" placeholder="Email" class="input-field" required>
+          <input v-model="password" type="password" placeholder="Password" class="input-field" required>
+          <input v-model="repassword" type="password" placeholder="Re-enter Password" class="input-field" required>
         <button type="submit" class="register">Register</button>
-      </form>
+      </form> 
     </div>
+    <div class="additional-actions">
+    <button @click="handleSubmit" class="button submit">Submit Registration</button>
+  </div>
+    <button @click="registerByGoogle" class="button register">Register by Google</button>
     <Footer />
 </template>
 

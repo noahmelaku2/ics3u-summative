@@ -55,7 +55,7 @@ onMounted(() => {
   background-color: #092ae5;
   color: white;
   text-decoration: none;
-  border-radius: 5px;
+  border-radius: 100px;
   font-size: 1rem;
   transition: background-color 0.3s;
 }
