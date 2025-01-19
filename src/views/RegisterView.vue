@@ -2,64 +2,59 @@
 import { useRegistrationStore } from '../store';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
-import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth } from "../firebase";
-import Header from '../components/Header.vue'
-import Footer from '../components/Footer.vue'
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from 'firebase/auth';
+import { auth } from '../firebase';
+import Header from '../components/Header.vue';
+import Footer from '../components/Footer.vue';
 
 const firstName = ref('');
 const lastName = ref('');
 const email = ref('');
 const password = ref('');
 const repassword = ref('');
-const store = useRegistrationStore();
 const router = useRouter();
+const store = useRegistrationStore();
 
 function validatePassword(password) {
   if (password.length < 6) {
-    alert("Password should be at least 6 characters long.");
+    alert('Password should be at least 6 characters long.');
     return false;
   }
   return true;
-}                     
-
-function handleSubmit() {
-  if (password.value === password2.value) {
-    if (!validatePassword(password.value)) {
-      return;
-    }
-    store.firstName = firstName.value;
-    store.lastName = lastName.value;
-    store.email = email.value;
-    store.password = password.value;
-    router.push('/movies');
-  } else {
-    window.alert('Passwords do not match; Please re-enter');
-  }
-}
-
-function goToHome() {
-  router.push('/');
 }
 
 async function registerByEmail() {
   try {
-    if (!validatePassword(password.value)) {
+    if (password.value !== repassword.value) {
+      alert('Passwords do not match. Please re-enter.');
       return;
     }
+    if (!validatePassword(password.value)) return;
 
     const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
     const user = userCredential.user;
 
     await updateProfile(user, { displayName: `${firstName.value} ${lastName.value}` });
-    store.user = user;
 
-    console.log("User created:", user);
+    // Update store with user information
+    store.updateUser({
+      firstName: firstName.value,
+      lastName: lastName.value,
+      email: user.email,
+      uid: user.uid,
+    });
 
-    router.push("/movies");
+    console.log('User created:', user);
+
+    router.push('/movies');
   } catch (error) {
-    console.error("Error creating user:", error);
-    alert("There was an error creating a user with email: " + error.message);
+    console.error('Error creating user:', error);
+    alert('Error creating user: ' + error.message);
   }
 }
 
@@ -68,14 +63,19 @@ async function registerByGoogle() {
     const userCredential = await signInWithPopup(auth, new GoogleAuthProvider());
     const user = userCredential.user;
 
-    store.user = user;
+    store.updateUser({
+      firstName: user.displayName?.split(' ')[0] || '',
+      lastName: user.displayName?.split(' ')[1] || '',
+      email: user.email,
+      uid: user.uid,
+    });
 
-    console.log("User created via Google:", user);
+    console.log('User created via Google:', user);
 
-    router.push("/movies");
+    router.push('/movies');
   } catch (error) {
-    console.error("Error creating user with Google:", error);
-    alert("There was an error creating a user with Google: " + error.message);
+    console.error('Error creating user with Google:', error);
+    alert('Error creating user with Google: ' + error.message);
   }
 }
 </script>
@@ -84,21 +84,20 @@ async function registerByGoogle() {
   <Header />
   <div class="form-container">
     <h2>Create an Account</h2>
-    <button class="button back" @click="goToHome">Back to Home</button>
+    <button class="button back" @click="router.push('/')">Back to Home</button>
     <form @submit.prevent="registerByEmail">
-        <input v-model="firstName" type="text" placeholder="First Name" class="input-field" required>
-          <input v-model="lastName" type="text" placeholder="Last name" class="input-field" required>
-          <input v-model="email" type="email" placeholder="Email" class="input-field" required>
-          <input v-model="password" type="password" placeholder="Password" class="input-field" required>
-          <input v-model="repassword" type="password" placeholder="Re-enter Password" class="input-field" required>
-        <button type="submit" class="register">Register</button>
-      </form> 
-    </div>
-    <div class="additional-actions">
-    <button @click="handleSubmit" class="button submit">Submit Registration</button>
+      <input v-model="firstName" type="text" placeholder="First Name" class="input-field" required />
+      <input v-model="lastName" type="text" placeholder="Last Name" class="input-field" required />
+      <input v-model="email" type="email" placeholder="Email" class="input-field" required />
+      <input v-model="password" type="password" placeholder="Password" class="input-field" required />
+      <input v-model="repassword" type="password" placeholder="Re-enter Password" class="input-field" required />
+      <button type="submit" class="register">Register</button>
+    </form>
   </div>
-    <button @click="registerByGoogle" class="button register">Register by Google</button>
-    <Footer />
+  <div class="additional-actions">
+    <button @click="registerByGoogle" class="button register">Register with Google</button>
+  </div>
+  <Footer />
 </template>
 
 <style scoped>

@@ -20,7 +20,7 @@ const checkout = () => {
       store.checkoutMessage = '';
     }, 3000);
   } else {
-    store.checkoutMessage = 'No items to checkout';
+    store.checkoutMessage = 'No items to checkout.';
   }
 };
 </script>

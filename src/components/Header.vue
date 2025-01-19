@@ -1,7 +1,7 @@
 <script setup>
-import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
 import { useRegistrationStore } from '../store';
+import { useRoute } from 'vue-router';
+import { onMounted, ref } from 'vue';
 
 const isHomePage = ref(false);
 const route = useRoute();

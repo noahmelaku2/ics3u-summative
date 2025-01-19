@@ -4,6 +4,21 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import { useRouter } from "vue-router";
 
+export const useRegistrationStore = defineStore('registration', () => {
+  const user = ref({
+    firstName: '',
+    lastName: '',
+    email: '',
+    uid: '',
+  });
+
+  function updateUser(userData) {
+    user.value = { ...user.value, ...userData };
+  }
+
+  return { user, updateUser };
+});
+
 export const useStore = defineStore('store', () => {
   const user = ref(null);
   const cart = ref(new Map());
