@@ -58,6 +58,10 @@ async function registerByGoogle() {
     alert("There was an error creating a user with Google!");
   }
 }
+
+function goToHome() {
+  router.push('/');
+}
 </script>
 
 <template>

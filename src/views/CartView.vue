@@ -1,46 +1,53 @@
 <script setup>
 import { useStore } from '../store';
 import { useRouter } from 'vue-router';
+import { ref } from 'vue';
 import Footer from "../components/Footer.vue";
 import Header from "../components/Header.vue";
 
 const store = useStore();
 const router = useRouter();
+const thank = ref(false);
+const cartEmpty = ref(false);
 
 function goBackToMovies() {
   router.push("/movies");
 }
 
-const checkout = () => {
-  if (store.cart.size > 0) {
-    store.cart.clear();
-    localStorage.removeItem('cart');
-    store.checkoutMessage = 'Thank you for your purchase!';
-    setTimeout(() => {
-      store.checkoutMessage = '';
-    }, 3000);
-  } else {
-    store.checkoutMessage = 'No items to checkout.';
-  }
+const handleCheckout = () => {
+
+if (store.cart.size === 0) {
+  cartEmpty.value = true;
+} else {
+  thank.value = true;
+  store.clearCart();
+}
 };
 </script>
 
 <template>
   <Header />
-  <div class="cart">
+    <div class="cart-container" v-if="!thank">
+    <h2>Shopping Cart</h2>
     <button class="button back" @click="goBackToMovies">Back to Movie List</button>
-    <button class="checkout-button" @click="checkout">Checkout</button>
-    <div v-if="store.checkoutMessage" class="thank-you-message">
-  {{ store.checkoutMessage }}
-    </div>
-
-    <h1>Shopping Cart</h1>
-      <div class="item" v-for="([key, value]) in store.cart">
-        <img :src="`https://image.tmdb.org/t/p/w500${value.url}`" />
-        <h1>{{ value.title }}</h1>
+    <button @click="handleCheckout">Checkout</button>
+    <div class="cart-item" v-for="([key, value]) in store.cart" :key="key">
+      <img :src="`https://image.tmdb.org/t/p/w500${value.url}`" />
+      <div class="item-details">
+        <h3>{{ value.title }}</h3>
         <button @click="store.removeFromCart(key)">Remove</button>
       </div>
     </div>
+
+    <div v-if="cartEmpty" class="cart-empty-message">
+      <p>Your cart is empty. Please add some items before proceeding!</p>
+    </div>
+  </div>
+
+  <div v-else class="thank-you-message">
+    <p>Enjoy your purchase!</p>
+  </div>
+
   <Footer />
 </template>
 

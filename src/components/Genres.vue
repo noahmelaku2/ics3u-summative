@@ -23,7 +23,7 @@ onMounted(async () => {
 })
 </script>
 
-<<template>
+<template>
   <div class="movie-gallery">
     <select v-model="selectedGenre" @change="getMovieByGenre()">
       <option v-for="genre of genres" :value="genre.id">{{ genre.genreName }}</option>
@@ -103,5 +103,35 @@ select {
 select:focus {
   border-color: #092ae5;
   outline: none;
+}
+
+.buy {
+  display: inline-block;
+  margin: 10px auto;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.buy:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.buy:active {
+  background-color: #003f8a;
+}
+
+.buy[disabled],
+.buy[disabled]:hover {
+  background-color: #444;
+  cursor: not-allowed;
+  transform: none;
 }
 </style>

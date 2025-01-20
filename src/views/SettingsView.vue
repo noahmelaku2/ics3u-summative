@@ -18,7 +18,6 @@ const changeName = async () => {
   try {
     const user = auth.currentUser;
     if (user) {
-      // Check if the user is not logged in via Google
       const isGoogleUser = user.providerData.some(provider => provider.providerId === 'google.com');
       if (isGoogleUser) {
         alert("Users who logged in via Google cannot change their name.");
@@ -33,7 +32,7 @@ const changeName = async () => {
       }
 
       await updateProfile(user, { displayName: newName });
-      store.user = { ...user, displayName: newName }; // Update in the store
+      store.user = { ...user, displayName: newName };
       alert("Name updated successfully!");
     }
   } catch (error) {
