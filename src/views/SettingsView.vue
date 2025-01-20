@@ -18,9 +18,15 @@ const changeName = async () => {
   try {
     const user = auth.currentUser;
     if (user) {
-      await updateProfile(user, { displayName: `${name.value} ${lastName.value}` });
+      const currentName = user.displayName;
+      const newName = `${name.value} ${lastName.value}`;
+      if (currentName === newName) {
+        alert("The new name is the same as the current name. No changes made.");
+        return;
+      }
 
-      store.user = user;
+      await updateProfile(user, { displayName: newName });
+      store.user = { ...user, displayName: newName };
       alert("Name updated successfully!");
     }
   } catch (error) {
@@ -32,10 +38,19 @@ const changeName = async () => {
 const changePassword = async () => {
   try {
     const user = auth.currentUser;
-    await updatePassword(user, password.value);
-    alert("Password updated successfully!");
-    password.value = '';
+    if (user) {
+      const newPassword = password.value;
+      if (!newPassword || newPassword === user.password) {
+        alert("The new password is the same as the current password or is empty. No changes made.");
+        return;
+      }
+
+      await updatePassword(user, newPassword);
+      alert("Password updated successfully!");
+      password.value = '';
+    }
   } catch (error) {
+    console.error("Error occurred during password change:", error);
     alert("There was an error updating the password. Please try again.");
   }
 };

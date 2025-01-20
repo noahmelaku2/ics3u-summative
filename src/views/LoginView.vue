@@ -18,7 +18,7 @@ const loginByEmail = async () => {
     router.push("/movies");
   } catch (error) {
     console.log(error);
-    alert("There was an error logging in with email!");
+    alert("There was an error signing in with email!");
   }
 };
 
@@ -28,7 +28,7 @@ const loginByGoogle = async () => {
     store.user = user;
     router.push("/movies");
   } catch (error) {
-    alert("There was an error logging in with Google!");
+    alert("There was an error signing in with Google!");
   }
 };
 
@@ -48,7 +48,7 @@ function goToHome() {
       <div class="form-container">
         <h2>Login to Your Account</h2>
         <form @submit.prevent="loginByEmail()">
-          <input type="email" placeholder="Email" class="input-field" required />
+          <input v-model="email" type="email" placeholder="Email" class="input-field" required />
           <input v-model="password" type="password" placeholder="Password" class="input-field" required />
           <button type="submit" class="button login">Login</button>
           <button @click="loginByGoogle()" class="button register-google">Login by Google</button>
@@ -56,6 +56,7 @@ function goToHome() {
       </div>
     </div>
   </div>
+  <Footer />
 </template>
 
 <style scoped>
