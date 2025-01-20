@@ -41,18 +41,22 @@ async function registerByEmail() {
 
 async function registerByGoogle() {
   try {
-    const result = await signInWithPopup(auth, new GoogleAuthProvider());
+    await auth.signOut();
+
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+      prompt: "select_account" 
+    });
+
+    const result = await signInWithPopup(auth, provider);
+
     store.user = result.user;
 
     router.push("/movies");
   } catch (error) {
-    console.error("Error during Google sign-in:", error.message);
+    console.error("Error during Google sign-in:", error.code, error.message);
     alert("There was an error creating a user with Google!");
   }
-}
-
-function goToHome() {
-  router.push('/');
 }
 </script>
 

@@ -18,6 +18,13 @@ const changeName = async () => {
   try {
     const user = auth.currentUser;
     if (user) {
+      // Check if the user is not logged in via Google
+      const isGoogleUser = user.providerData.some(provider => provider.providerId === 'google.com');
+      if (isGoogleUser) {
+        alert("Users who logged in via Google cannot change their name.");
+        return;
+      }
+
       const currentName = user.displayName;
       const newName = `${name.value} ${lastName.value}`;
       if (currentName === newName) {
@@ -26,7 +33,7 @@ const changeName = async () => {
       }
 
       await updateProfile(user, { displayName: newName });
-      store.user = { ...user, displayName: newName };
+      store.user = { ...user, displayName: newName }; // Update in the store
       alert("Name updated successfully!");
     }
   } catch (error) {
@@ -39,6 +46,12 @@ const changePassword = async () => {
   try {
     const user = auth.currentUser;
     if (user) {
+      const isGoogleUser = user.providerData.some(provider => provider.providerId === 'google.com');
+      if (isGoogleUser) {
+        alert("Users who logged in via Google cannot change their password.");
+        return;
+      }
+
       const newPassword = password.value;
       if (!newPassword || newPassword === user.password) {
         alert("The new password is the same as the current password or is empty. No changes made.");

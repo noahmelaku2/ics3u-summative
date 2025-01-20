@@ -23,7 +23,7 @@ onMounted(async () => {
 })
 </script>
 
-<template>
+<<template>
   <div class="movie-gallery">
     <select v-model="selectedGenre" @change="getMovieByGenre()">
       <option v-for="genre of genres" :value="genre.id">{{ genre.genreName }}</option>
@@ -32,13 +32,14 @@ onMounted(async () => {
       <div v-for="movie in response.data.results" :key="movie.id" class="movie-card" @click="getMovieDetails(movie.id)">
         <img :src="`https://image.tmdb.org/t/p/w500${movie.poster_path}`" alt="Movie Poster" class="movie-poster" />
         <p class="movie-title">{{ movie.title }}</p>
-        <button v-if='!store.cart.has(movie.id)'
-          @click="store.addToCart(movie.id, { title: movie.title, url: movie.poster_path })" class="buy">
+        <button
+          v-if="!store.cart.has(movie.id)"
+          @click.stop="store.addToCart(movie.id, { title: movie.title, url: movie.poster_path })"
+          class="buy"
+        >
           Buy
         </button>
-        <button v-else class = 'buy'>
-          Added
-        </button>
+        <button v-else class="buy">Added</button>
       </div>
     </div>
   </div>

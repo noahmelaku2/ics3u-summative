@@ -2,10 +2,17 @@
 import { useRegistrationStore } from '../store';
 import { useRoute } from 'vue-router';
 import { onMounted, ref } from 'vue';
+import { RouterLink } from 'vue-router';
+import { useStore } from '../store';
 
+const store = useStore();
 const isHomePage = ref(false);
 const route = useRoute();
 const registrationStore = useRegistrationStore();
+
+const logout = () => {
+  store.logout();
+};
 
 onMounted(() => {
   if (route.path === '/') {
@@ -20,7 +27,7 @@ onMounted(() => {
   </div>
   <div class="buttons">
     <li v-if="$route.path === '/movies'">
-      <h1 class="email">{{ `Hello ${registrationStore.firstName}!` }}</h1>
+      <h1 class="email">{{ `Hello ${store.user?.displayName}!` }}</h1>
       <RouterLink to="/settings" class="button settings">Setting</RouterLink>
       <RouterLink to="/" class="button settings">Logout</RouterLink>
       <RouterLink to="/cart" class="button cart">Cart</RouterLink>

@@ -6,6 +6,9 @@ import MoviesView from '../views/MoviesView.vue';
 import DetailsView from '../views/DetailsView.vue';
 import CartView from '../views/CartView.vue';
 import SettingsView from '../views/SettingsView.vue';
+import ErrorsView from '../views/ErrorsView.vue';
+import { useStore } from '../store';
+
 
 const routes = [
  { path: '/', component: HomeView },
@@ -15,11 +18,23 @@ const routes = [
  { path: '/movies/:id', component: DetailsView },
  { path: '/cart', component: CartView },
  { path: '/settings', component: SettingsView },
+ { path: '/:pathMatch(.*)*', meta: { auth: false }, component: ErrorsView, },
 ]
 
 const router = createRouter({
- history: createWebHistory(),
- routes,
-})
-
-export default router;
+    history: createWebHistory(),
+    routes,
+  })
+  
+  router.beforeEach((to, from, next) => {
+    const store = useStore();
+  
+    store.userAuthorized.then(() => {
+      if (!store.user && to.meta.auth) {
+        next("/login");
+      } else {
+        next();
+      }
+    });
+  });
+  export default router;
